@@ -42,3 +42,10 @@ This scenario is an example used to demonstrate the automation workflow; it is n
 ## Objective
 
 Explore AI-assisted network engineering by automating repetitive Packet Tracer tasks and making network lab creation faster and easier to reproduce.
+## AI Automation Workflow
+
+![Antigravity AI Automation](antigravity-automation.png)
+
+## Generated Network Topology
+
+![Packet Tracer Network Topology](network-topology.png)
