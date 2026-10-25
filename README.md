@@ -1,59 +1,112 @@
-# AI-Powered Cisco Packet Tracer Automation
+# AI-Powered Packet Tracer Automation
 
-A starter automation tool for planning, validating, and exporting Cisco Packet Tracer lab artifacts through the `packet-tracer-mcp` MCP server.
+This repository documents the local setup and MCP connection workflow for using `packet-tracer-mcp` with Antigravity and Cisco Packet Tracer.
 
-## Features
+## What is included
 
-- Plain-English request parser for common network lab requirements.
-- MCP integration with `pt_plan_topology`, `pt_validate_plan`, and `pt_export`.
-- Safe default: it does not deploy devices automatically.
-- Unit tests and GitHub Actions CI.
-- Keeps the existing Packet Tracer project, topology image, and `configs/` files as reference artifacts.
+- `packet_tracer_ai/` — experimental command-line wrapper.
+- `tests/` and `.github/workflows/python-tests.yml` — parser tests and automated test workflow.
+- `vtp_etherchannel_dhcp_topology.pkt` — existing Packet Tracer lab.
+- `vtp_etherchannel_dhcp.png` — topology image.
 
-## Requirements
+> **Status:** the MCP connection and wrapper should be verified on the local machine. Exporting an artifact does not necessarily create or edit a native `.pkt` file.
 
-- Python 3.10+
-- `packet-tracer-mcp` installed in the same Python environment
-- MCP server starts with `python -m packet_tracer_mcp --stdio`
+## 1. Check prerequisites in PowerShell
 
-## Install
+Run these commands to verify the tools are available:
 
 ```powershell
+python --version
+python -m pip --version
+git --version
+node --version
+npm --version
+```
+
+If a command is not recognized, install that prerequisite and reopen PowerShell.
+
+## 2. Install the MCP server
+
+Install the package in the Python environment you intend to use:
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install packet-tracer-mcp
+```
+
+Check that the package can be launched:
+
+```powershell
+python -m packet_tracer_mcp --help
+```
+
+The MCP server uses standard input/output when launched with `--stdio`. It may wait for an MCP client rather than displaying a normal interactive prompt.
+
+## 3. Connect it to Antigravity
+
+In Antigravity, open its MCP settings and add an MCP server with:
+
+- **Command:** `python`
+- **Arguments:** `-m packet_tracer_mcp --stdio`
+
+Use the same Python environment in which you installed `packet-tracer-mcp`. If Antigravity cannot find the package, configure the full path to that environment's Python executable.
+
+Verify the configured server from PowerShell:
+
+```powershell
+agy mcp list
+```
+
+The server should appear in the list as enabled. If your Antigravity version uses a different settings screen, use its MCP server configuration UI and enter the same command and arguments.
+
+## 4. Install this repository's wrapper
+
+Clone the repository if it is not already on your computer, then enter the project folder:
+
+```powershell
+git clone https://github.com/merymennaciri/AI-Powered-Packet-Tracer-Automation.git
+Set-Location .\AI-Powered-Packet-Tracer-Automation
 python -m pip install -e .
 ```
 
-If the shell cannot find the command, use:
+If you already have the repository locally, use `Set-Location` with your existing project path instead of cloning it again.
+
+Check the wrapper's available options:
 
 ```powershell
 python -m packet_tracer_ai.cli --help
 ```
 
-## Example: VLANs, router-on-a-stick and DHCP
+Example planning request:
 
 ```powershell
 packet-tracer-ai "1 router, 3 VLANs, router-on-a-stick and DHCP" --name VTP-EtherChannel-DHCP --validate-only
 ```
 
-To also request artifact export:
+To request artifact export:
 
 ```powershell
 packet-tracer-ai "1 router, 3 VLANs, router-on-a-stick and DHCP" --name VTP-EtherChannel-DHCP --output projects
 ```
 
-The parser currently maps a limited set of common phrases to planning parameters; it is not a general-purpose LLM. Review the plan and validation output. Export behavior depends on the installed MCP server and does not guarantee a native `.pkt` file.
+The wrapper currently uses a limited rule-based parser; review the generated plan and validation output. Do not assume the export is a native Packet Tracer project unless you verify the output.
 
-## Tests
+## 5. Run tests
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
 
-## Existing lab artifacts
+The GitHub Actions workflow at `.github/workflows/python-tests.yml` is intentionally kept in the repository.
 
-- `vtp_etherchannel_dhcp_topology.pkt` — existing Packet Tracer project
-- `vtp_etherchannel_dhcp.png` — existing topology image
-- `configs/R1.cfg`, `configs/SW1.cfg`, `configs/SW2.cfg`, `configs/SW3.cfg` — reference configurations
+## Troubleshooting
 
-## Safety note
+- **Package not found:** run `python -m pip show packet-tracer-mcp` and make sure Antigravity uses that same Python environment.
+- **MCP server not listed:** check the command and arguments in Antigravity's MCP settings, then run `agy mcp list`.
+- **Python command not found:** install Python, reopen PowerShell, and run `python --version`.
+- **Node/npm command not found:** install Node.js and reopen PowerShell.
+- **No native `.pkt` generated:** the current wrapper's export step does not guarantee native Packet Tracer file generation. The existing `.pkt` file remains a separate lab artifact.
 
-This project generates plans and configuration artifacts for review. Inspect and test configurations in Packet Tracer before using them elsewhere.
+## Existing lab
+
+Open `vtp_etherchannel_dhcp_topology.pkt` directly in Cisco Packet Tracer to inspect the existing topology. The topology image is `vtp_etherchannel_dhcp.png`.
