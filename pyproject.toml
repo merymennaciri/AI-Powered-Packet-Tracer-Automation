@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-powered-packet-tracer-automation"
+version = "0.1.0"
+description = "A CLI wrapper for planning and validating Cisco Packet Tracer labs through packet-tracer-mcp."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["mcp>=1.0.0"]
+
+[project.scripts]
+packet-tracer-ai = "packet_tracer_ai.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["packet_tracer_ai*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
