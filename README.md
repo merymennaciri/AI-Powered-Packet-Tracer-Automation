@@ -1,51 +1,59 @@
- # AI-Powered Cisco Packet Tracer Automation
+# AI-Powered Cisco Packet Tracer Automation
 
-An AI-assisted automation project that connects Antigravity CLI and MCP tools with Cisco Packet Tracer to automate network lab creation and configuration.
+A starter automation tool for planning, validating, and exporting Cisco Packet Tracer lab artifacts through the `packet-tracer-mcp` MCP server.
 
-## Project Idea
+## Features
 
-The goal is to simplify Cisco Packet Tracer lab setup by describing a network in a natural-language prompt instead of manually creating and configuring every device.
+- Plain-English request parser for common network lab requirements.
+- MCP integration with `pt_plan_topology`, `pt_validate_plan`, and `pt_export`.
+- Safe default: it does not deploy devices automatically.
+- Unit tests and GitHub Actions CI.
+- Keeps the existing Packet Tracer project, topology image, and `configs/` files as reference artifacts.
 
-The automation workflow is designed to:
-- Interpret a network lab prompt.
-- Create a network topology in Cisco Packet Tracer.
-- Connect the required network devices.
-- Configure routers and switches according to the requested scenario.
-- Generate a Packet Tracer lab that can be inspected and tested.
+## Requirements
 
-## Technologies
+- Python 3.10+
+- `packet-tracer-mcp` installed in the same Python environment
+- MCP server starts with `python -m packet_tracer_mcp --stdio`
 
-- Antigravity CLI
-- Model Context Protocol (MCP)
-- Cisco Packet Tracer
-- Cisco IOS configuration
-- PowerShell
+## Install
 
-## Example Test Scenario
+```powershell
+python -m pip install -e .
+```
 
-To test the automation workflow, I used a prompt requesting an enterprise network with:
+If the shell cannot find the command, use:
 
-- VTP and VLAN management
-- EtherChannel using LACP
-- 802.1Q trunk links
-- Router-on-a-Stick inter-VLAN routing
-- DHCP configuration
+```powershell
+python -m packet_tracer_ai.cli --help
+```
 
-This scenario is an example used to demonstrate the automation workflow; it is not the entire project.
+## Example: VLANs, router-on-a-stick and DHCP
 
-## Project Artifacts
+```powershell
+packet-tracer-ai "1 router, 3 VLANs, router-on-a-stick and DHCP" --name VTP-EtherChannel-DHCP --validate-only
+```
 
-- `vtp_etherchannel_dhcp_topology.pkt` — generated Packet Tracer lab
-- `vtp_etherchannel_dhcp.png` — topology screenshot
-- `configs/` — router and switch configuration files
+To also request artifact export:
 
-## Objective
+```powershell
+packet-tracer-ai "1 router, 3 VLANs, router-on-a-stick and DHCP" --name VTP-EtherChannel-DHCP --output projects
+```
 
-Explore AI-assisted network engineering by automating repetitive Packet Tracer tasks and making network lab creation faster and easier to reproduce.
-## AI Automation Workflow
+The parser currently maps a limited set of common phrases to planning parameters; it is not a general-purpose LLM. Review the plan and validation output. Export behavior depends on the installed MCP server and does not guarantee a native `.pkt` file.
 
-![Antigravity AI Automation](antigravity-automation.png)
+## Tests
 
-## Generated Network Topology
+```powershell
+python -m unittest discover -s tests -v
+```
 
-![Packet Tracer Network Topology](network-topology.png)
+## Existing lab artifacts
+
+- `vtp_etherchannel_dhcp_topology.pkt` — existing Packet Tracer project
+- `vtp_etherchannel_dhcp.png` — existing topology image
+- `configs/R1.cfg`, `configs/SW1.cfg`, `configs/SW2.cfg`, `configs/SW3.cfg` — reference configurations
+
+## Safety note
+
+This project generates plans and configuration artifacts for review. Inspect and test configurations in Packet Tracer before using them elsewhere.
